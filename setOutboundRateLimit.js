@@ -16,16 +16,6 @@ import { createOFTFactory } from '@layerzerolabs/ua-devtools-solana'
 
 import { createSolanaConnectionFactory } from '../common/utils'
 
-interface Args {
-    mint: string
-    eid: EndpointId
-    dstEid: EndpointId
-    programId: string
-    oftStore: string
-    capacity: bigint
-    refillPerSecond: bigint
-}
-
 task(
     'lz:oft:solana:outbound-rate-limit',
     "Sets the Solana and EVM rate limits from './scripts/solana/utils/constants.ts'"
@@ -37,7 +27,7 @@ task(
     .addParam('oftStore', 'The OFTStore account')
     .addParam('capacity', 'The capacity of the rate limit', undefined, types.bigint)
     .addParam('refillPerSecond', 'The refill rate of the rate limit', undefined, types.bigint)
-    .setAction(async (taskArgs: Args, hre) => {
+    .setAction(async function(taskArgs, hre) {
         const privateKey = process.env.SOLANA_PRIVATE_KEY
         assert(!!privateKey, 'SOLANA_PRIVATE_KEY is not defined in the environment variables.')
 
