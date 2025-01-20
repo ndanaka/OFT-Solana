@@ -1,20 +1,12 @@
 import assert from 'assert'
-import fs from 'fs'
-import path from 'path'
 import dotenv from 'dotenv'
-
 import { Keypair } from '@solana/web3.js'
 import bs58 from 'bs58'
 import { task } from 'hardhat/config'
-
 import { types as devtoolsTypes } from '@layerzerolabs/devtools-evm-hardhat'
 
 // Load environment variables
 dotenv.config()
-
-assert(process.env.HOME != undefined, 'process.env.HOME needs to be defined')
-
-const defaultKeypairFile = process.env.KEYPAIR_FILE || path.resolve(process.env.HOME, '.config/solana/id.json')
 
 // Helper function to get environment variable with fallback
 const getEnvVar = (key, fallback = undefined) => {
@@ -25,6 +17,14 @@ const getEnvVar = (key, fallback = undefined) => {
     return value || fallback
 }
 
+// Get private key from environment
+const getKeypair = () => {
+    const privateKeyString = process.env.SOLANA_PRIVATE_KEY
+    assert(privateKeyString, 'SOLANA_PRIVATE_KEY must be defined in environment')
+    const privateKey = bs58.decode(privateKeyString)
+    return Keypair.fromSecretKey(privateKey)
+}
+
 // Common environment variables for all tasks
 const commonEnvVars = {
     ENDPOINT_ID: getEnvVar('ENDPOINT_ID'),
@@ -32,19 +32,9 @@ const commonEnvVars = {
 }
 
 task('lz:solana:base-58', 'Outputs the base58 string for a keypair')
-    .addParam(
-        'keypairFile',
-        'The path to the keypair file to be used',
-        process.env.KEYPAIR_FILE || defaultKeypairFile,
-        devtoolsTypes.string
-    )
-    .setAction(async function(args) {
-        assert(fs.existsSync(args.keypairFile), `Keypair file not found: ${args.keypairFile}`)
-        const data = fs.readFileSync(args.keypairFile, 'utf8')
-        const keypairJson = JSON.parse(data)
-        const keypair = Keypair.fromSecretKey(Uint8Array.from(keypairJson))
-        const base58EncodedPrivateKey = bs58.encode(keypair.secretKey)
-        console.log(base58EncodedPrivateKey)
+    .setAction(async function() {
+        const keypair = getKeypair()
+        console.log(`Public Key: ${keypair.publicKey.toBase58()}`)
     })
 
 // Modified tasks to use environment variables with CLI parameter fallback
