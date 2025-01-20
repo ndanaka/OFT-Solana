@@ -21,8 +21,16 @@ const getEnvVar = (key, fallback = undefined) => {
 const getKeypair = () => {
     const privateKeyString = process.env.SOLANA_PRIVATE_KEY
     assert(privateKeyString, 'SOLANA_PRIVATE_KEY must be defined in environment')
-    const privateKey = bs58.decode(privateKeyString)
-    return Keypair.fromSecretKey(privateKey)
+    
+    try {
+        // Parse the array string into actual array
+        const privateKeyArray = JSON.parse(privateKeyString)
+        // Convert array to Uint8Array
+        const privateKeyUint8 = new Uint8Array(privateKeyArray)
+        return Keypair.fromSecretKey(privateKeyUint8)
+    } catch (error) {
+        throw new Error('Failed to parse SOLANA_PRIVATE_KEY. Make sure it is a valid JSON array')
+    }
 }
 
 // Common environment variables for all tasks
