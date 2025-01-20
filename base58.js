@@ -34,8 +34,8 @@ const commonEnvVars = {
 task('lz:solana:base-58', 'Outputs the base58 string for a keypair')
     .addParam(
         'keypairFile',
-        'The path to the keypair file to be used. Defaults to env KEYPAIR_FILE or ~/.config/solana/id.json',
-        defaultKeypairFile,
+        'The path to the keypair file to be used',
+        process.env.KEYPAIR_FILE || defaultKeypairFile,
         devtoolsTypes.string
     )
     .setAction(async function(args) {
@@ -49,50 +49,50 @@ task('lz:solana:base-58', 'Outputs the base58 string for a keypair')
 
 // Modified tasks to use environment variables with CLI parameter fallback
 task('lz:oft:solana:create', 'Creates new OFT (Omnichain Fungible Token)')
-    .addParam('eid', 'Endpoint ID', getEnvVar('ENDPOINT_ID', undefined), devtoolsTypes.eid)
-    .addParam('name', 'Token Name', getEnvVar('TOKEN_NAME', 'Token Name'), devtoolsTypes.string)
-    .addParam('symbol', 'Token Symbol', getEnvVar('TOKEN_SYMBOL', 'TKN'), devtoolsTypes.string)
-    .addParam('programId', 'Program ID', getEnvVar('PROGRAM_ID', undefined), devtoolsTypes.string)
-    .addParam('amount', 'Initial supply', getEnvVar('INITIAL_SUPPLY', '0'), devtoolsTypes.int)
+    .addParam('eid', 'Endpoint ID', process.env.ENDPOINT_ID, devtoolsTypes.eid)
+    .addParam('name', 'Token Name', process.env.TOKEN_NAME || 'Token Name', devtoolsTypes.string)
+    .addParam('symbol', 'Token Symbol', process.env.TOKEN_SYMBOL || 'TKN', devtoolsTypes.string)
+    .addParam('programId', 'Program ID', process.env.PROGRAM_ID, devtoolsTypes.string)
+    .addParam('amount', 'Initial supply', process.env.INITIAL_SUPPLY || '0', devtoolsTypes.int)
     .setAction(async function(args) {
         // Existing implementation
     })
 
 task('lz:oft-adapter:solana:create', 'Creates new OFT Adapter')
-    .addParam('mint', 'Mint address', getEnvVar('MINT_ADDRESS'), devtoolsTypes.string)
-    .addParam('programId', 'Program ID', getEnvVar('PROGRAM_ID'), devtoolsTypes.string)
-    .addParam('eid', 'Endpoint ID', getEnvVar('ENDPOINT_ID'), devtoolsTypes.eid)
+    .addParam('mint', 'Mint address', process.env.MINT_ADDRESS, devtoolsTypes.string)
+    .addParam('programId', 'Program ID', process.env.PROGRAM_ID, devtoolsTypes.string)
+    .addParam('eid', 'Endpoint ID', process.env.ENDPOINT_ID, devtoolsTypes.eid)
     .setAction(async function(args) {
         // Existing implementation
     })
 
 task('lz:oft:solana:send', 'Send OFT tokens')
-    .addParam('amount', 'Amount to send', getEnvVar('SEND_AMOUNT'), devtoolsTypes.int)
-    .addParam('fromEid', 'Source endpoint', getEnvVar('FROM_ENDPOINT_ID'), devtoolsTypes.eid)
-    .addParam('to', 'Recipient address', getEnvVar('RECIPIENT_ADDRESS'), devtoolsTypes.string)
-    .addParam('toEid', 'Destination endpoint', getEnvVar('TO_ENDPOINT_ID'), devtoolsTypes.eid)
-    .addParam('mint', 'Token mint', getEnvVar('TOKEN_MINT'), devtoolsTypes.string)
-    .addParam('programId', 'Program ID', getEnvVar('PROGRAM_ID'), devtoolsTypes.string)
-    .addParam('escrow', 'Escrow address', getEnvVar('ESCROW_ADDRESS'), devtoolsTypes.string)
+    .addParam('amount', 'Amount to send', process.env.SEND_AMOUNT, devtoolsTypes.int)
+    .addParam('fromEid', 'Source endpoint', process.env.FROM_ENDPOINT_ID, devtoolsTypes.eid)
+    .addParam('to', 'Recipient address', process.env.RECIPIENT_ADDRESS, devtoolsTypes.string)
+    .addParam('toEid', 'Destination endpoint', process.env.TO_ENDPOINT_ID, devtoolsTypes.eid)
+    .addParam('mint', 'Token mint', process.env.TOKEN_MINT, devtoolsTypes.string)
+    .addParam('programId', 'Program ID', process.env.PROGRAM_ID, devtoolsTypes.string)
+    .addParam('escrow', 'Escrow address', process.env.ESCROW_ADDRESS, devtoolsTypes.string)
     .setAction(async function(args) {
         // Existing implementation
     })
 
 task('lz:oft:solana:inbound-rate-limit', 'Set inbound rate limits')
-    .addParam('mint', 'Mint address', getEnvVar('MINT_ADDRESS'), devtoolsTypes.string)
-    .addParam('programId', 'Program ID', getEnvVar('PROGRAM_ID'), devtoolsTypes.string)
-    .addParam('eid', 'Endpoint ID', getEnvVar('ENDPOINT_ID'), devtoolsTypes.eid)
-    .addParam('srcEid', 'Source endpoint', getEnvVar('SOURCE_ENDPOINT_ID'), devtoolsTypes.eid)
-    .addParam('oftStore', 'OFT store address', getEnvVar('OFT_STORE_ADDRESS'), devtoolsTypes.string)
-    .addParam('capacity', 'Rate limit capacity', getEnvVar('RATE_LIMIT_CAPACITY'), devtoolsTypes.bigint)
-    .addParam('refillPerSecond', 'Refill rate', getEnvVar('REFILL_RATE'), devtoolsTypes.bigint)
+    .addParam('mint', 'Mint address', process.env.MINT_ADDRESS, devtoolsTypes.string)
+    .addParam('programId', 'Program ID', process.env.PROGRAM_ID, devtoolsTypes.string)
+    .addParam('eid', 'Endpoint ID', process.env.ENDPOINT_ID, devtoolsTypes.eid)
+    .addParam('srcEid', 'Source endpoint', process.env.SOURCE_ENDPOINT_ID, devtoolsTypes.eid)
+    .addParam('oftStore', 'OFT store address', process.env.OFT_STORE_ADDRESS, devtoolsTypes.string)
+    .addParam('capacity', 'Rate limit capacity', process.env.RATE_LIMIT_CAPACITY, devtoolsTypes.bigint)
+    .addParam('refillPerSecond', 'Refill rate', process.env.REFILL_RATE, devtoolsTypes.bigint)
     .setAction(async function(args) {
         // Existing implementation
     })
 
 task('lz:solana:get-priority-fees', 'Fetches prioritization fees')
-    .addParam('eid', 'Endpoint ID', getEnvVar('ENDPOINT_ID'), devtoolsTypes.eid)
-    .addOptionalParam('address', 'Program ID or account address', getEnvVar('ADDRESS', undefined), devtoolsTypes.string)
+    .addParam('eid', 'Endpoint ID', process.env.ENDPOINT_ID, devtoolsTypes.eid)
+    .addOptionalParam('address', 'Program ID or account address', process.env.ADDRESS, devtoolsTypes.string)
     .setAction(async function(args) {
         // Existing implementation
     })
