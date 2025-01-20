@@ -1,5 +1,6 @@
 import assert from 'assert'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { Keypair } from '@solana/web3.js'
 
 import {
     fetchAddressLookupTable,
@@ -41,16 +42,22 @@ const getFromEnv = (key) => {
 }
 
 /**
- * Extracts the SOLANA_PRIVATE_KEY from the environment.  This is purposely not exported for encapsulation purposes.
+ * Extracts the keypair from the environment.
  */
-const getSolanaPrivateKeyFromEnv = () => getFromEnv('SOLANA_PRIVATE_KEY')
+const getKeypair = () => {
+    const privateKeyString = process.env.SOLANA_PRIVATE_KEY
+    if (!privateKeyString) {
+        throw new Error('SOLANA_PRIVATE_KEY is not defined in the environment variables.')
+    }
+    return Keypair.fromSecretKey(bs58.decode(privateKeyString))
+}
 
 /**
  * Derive common connection and UMI objects for a given endpoint ID.
  * @param {EndpointId} eid 
  */
 export const deriveConnection = async (eid) => {
-    const privateKey = getSolanaPrivateKeyFromEnv()
+    const keypair = getKeypair()
     const connectionFactory = createSolanaConnectionFactory()
     const connection = await connectionFactory(eid)
     const umi = createUmi(connection.rpcEndpoint).use(mplToolbox())
