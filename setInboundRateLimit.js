@@ -20,13 +20,13 @@ task(
     'lz:oft:solana:inbound-rate-limit',
     "Sets the Solana and EVM rate limits from './scripts/solana/utils/constants.ts'"
 )
-    .addParam('mint', 'The OFT token mint public key')
-    .addParam('programId', 'The OFT Program id')
-    .addParam('eid', 'Solana mainnet or testnet', undefined, types.eid)
-    .addParam('srcEid', 'The source endpoint ID', undefined, types.eid)
-    .addParam('oftStore', 'The OFTStore account')
-    .addParam('capacity', 'The capacity of the rate limit', undefined, types.bigint)
-    .addParam('refillPerSecond', 'The refill rate of the rate limit', undefined, types.bigint)
+    .addParam('mint', 'The OFT token mint public key', process.env.MINT_ADDRESS, types.string)
+    .addParam('programId', 'The OFT Program id', process.env.PROGRAM_ID, types.string)
+    .addParam('eid', 'Solana mainnet or testnet', process.env.ENDPOINT_ID, types.eid)
+    .addParam('srcEid', 'The source endpoint ID', process.env.SOURCE_ENDPOINT_ID, types.eid)
+    .addParam('oftStore', 'The OFTStore account', process.env.OFT_STORE_ADDRESS, types.string)
+    .addParam('capacity', 'The capacity of the rate limit', process.env.RATE_LIMIT_CAPACITY, types.bigint)
+    .addParam('refillPerSecond', 'The refill rate of the rate limit', process.env.REFILL_RATE, types.bigint)
     .setAction(async function(taskArgs, hre) {
         const privateKey = process.env.SOLANA_PRIVATE_KEY
         assert(!!privateKey, 'SOLANA_PRIVATE_KEY is not defined in the environment variables.')
