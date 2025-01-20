@@ -8,13 +8,6 @@ import {
     setComputeUnitPrice,
 } from '@metaplex-foundation/mpl-toolbox'
 import {
-    AddressLookupTableInput,
-    EddsaInterface,
-    Instruction,
-    KeypairSigner,
-    PublicKey,
-    TransactionBuilder,
-    Umi,
     createSignerFromKeypair,
     publicKey,
     signerIdentity,
@@ -34,12 +27,12 @@ import { OftPDA } from '@layerzerolabs/oft-v2-solana-sdk'
 import { createSolanaConnectionFactory } from '../common/utils'
 import getFee from '../utils/getFee'
 
-const LOOKUP_TABLE_ADDRESS: Partial<Record<EndpointId, PublicKey>> = {
+const LOOKUP_TABLE_ADDRESS = {
     [EndpointId.SOLANA_V2_MAINNET]: publicKey('AokBxha6VMLLgf97B5VYHEtqztamWmYERBmmFvjuTzJB'),
     [EndpointId.SOLANA_V2_TESTNET]: publicKey('9thqPdbR27A1yLWw2spwJLySemiGMXxPnEvfmXVk4KuK'),
 }
 
-const getFromEnv = (key: string): string => {
+const getFromEnv = (key) => {
     const value = process.env[key]
     if (!value) {
         throw new Error(`${key} is not defined in the environment variables.`)
@@ -54,9 +47,9 @@ const getSolanaPrivateKeyFromEnv = () => getFromEnv('SOLANA_PRIVATE_KEY')
 
 /**
  * Derive common connection and UMI objects for a given endpoint ID.
- * @param eid {EndpointId}
+ * @param {EndpointId} eid 
  */
-export const deriveConnection = async (eid: EndpointId) => {
+export const deriveConnection = async (eid) => {
     const privateKey = getSolanaPrivateKeyFromEnv()
     const connectionFactory = createSolanaConnectionFactory()
     const connection = await connectionFactory(eid)
@@ -74,11 +67,11 @@ export const deriveConnection = async (eid: EndpointId) => {
 
 /**
  * Derive the keys needed for the OFT program.
- * @param programIdStr {string}
+ * @param {string} programIdStr
  */
-export const deriveKeys = (programIdStr: string) => {
+export const deriveKeys = (programIdStr) => {
     const programId = publicKey(programIdStr)
-    const eddsa: EddsaInterface = createWeb3JsEddsa()
+    const eddsa = createWeb3JsEddsa()
     const oftDeriver = new OftPDA(programId)
     const lockBox = eddsa.generateKeypair()
     const escrowPK = lockBox.publicKey
@@ -94,20 +87,20 @@ export const deriveKeys = (programIdStr: string) => {
 
 /**
  * Outputs the OFT accounts to a JSON file.
- * @param eid {EndpointId}
- * @param programId {string}
- * @param mint {string}
- * @param mintAuthority {string}
- * @param escrow {string}
- * @param oftStore {string}
+ * @param {EndpointId} eid
+ * @param {string} programId
+ * @param {string} mint
+ * @param {string} mintAuthority
+ * @param {string} escrow
+ * @param {string} oftStore
  */
 export const output = (
-    eid: EndpointId,
-    programId: string,
-    mint: string,
-    mintAuthority: string,
-    escrow: string,
-    oftStore: string
+    eid,
+    programId,
+    mint,
+    mintAuthority,
+    escrow,
+    oftStore
 ) => {
     const outputDir = `./deployments/${endpointIdToNetwork(eid)}`
     if (!existsSync(outputDir)) {
@@ -130,17 +123,17 @@ export const output = (
     console.log(`Accounts have been saved to ${outputDir}/OFT.json`)
 }
 
-export const getLayerZeroScanLink = (hash: string, isTestnet = false) =>
+export const getLayerZeroScanLink = (hash, isTestnet = false) =>
     isTestnet ? `https://testnet.layerzeroscan.com/tx/${hash}` : `https://layerzeroscan.com/tx/${hash}`
 
-export const getExplorerTxLink = (hash: string, isTestnet = false) =>
+export const getExplorerTxLink = (hash, isTestnet = false) =>
     `https://solscan.io/tx/${hash}?cluster=${isTestnet ? 'devnet' : 'mainnet-beta'}`
 
-export const getAddressLookupTable = async (connection: Connection, umi: Umi, fromEid: EndpointId) => {
+export const getAddressLookupTable = async (connection, umi, fromEid) => {
     // Lookup Table Address and Priority Fee Calculation
     const lookupTableAddress = LOOKUP_TABLE_ADDRESS[fromEid]
     assert(lookupTableAddress != null, `No lookup table found for ${formatEid(fromEid)}`)
-    const addressLookupTableInput: AddressLookupTableInput = await fetchAddressLookupTable(umi, lookupTableAddress)
+    const addressLookupTableInput = await fetchAddressLookupTable(umi, lookupTableAddress)
     if (!addressLookupTableInput) {
         throw new Error(`No address lookup table found for ${lookupTableAddress}`)
     }
@@ -156,10 +149,10 @@ export const getAddressLookupTable = async (connection: Connection, umi: Umi, fr
 }
 
 export const getComputeUnitPriceAndLimit = async (
-    connection: Connection,
-    ixs: Instruction[],
-    wallet: KeypairSigner,
-    lookupTableAccount: AddressLookupTableAccount
+    connection,
+    ixs,
+    wallet,
+    lookupTableAccount
 ) => {
     const { averageFeeExcludingZeros } = await getFee(connection)
     const priorityFee = Math.round(averageFeeExcludingZeros)
@@ -183,12 +176,12 @@ export const getComputeUnitPriceAndLimit = async (
 }
 
 export const addComputeUnitInstructions = async (
-    connection: Connection,
-    umi: Umi,
-    eid: EndpointId,
-    txBuilder: TransactionBuilder,
-    umiWalletSigner: KeypairSigner,
-    computeUnitPriceScaleFactor: number
+    connection,
+    umi,
+    eid,
+    txBuilder,
+    umiWalletSigner,
+    computeUnitPriceScaleFactor
 ) => {
     const computeUnitLimitScaleFactor = 1.1 // hardcoded to 1.1 as the estimations are not perfect and can fall slightly short of the actual CU usage on-chain
     const { addressLookupTableInput, lookupTableAccount } = await getAddressLookupTable(connection, umi, eid)
