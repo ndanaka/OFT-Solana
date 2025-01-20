@@ -49,7 +49,16 @@ const getKeypair = () => {
     if (!privateKeyString) {
         throw new Error('SOLANA_PRIVATE_KEY is not defined in the environment variables.')
     }
-    return Keypair.fromSecretKey(bs58.decode(privateKeyString))
+    
+    try {
+        // Parse the array string into actual array
+        const privateKeyArray = JSON.parse(privateKeyString)
+        // Convert array to Uint8Array
+        const privateKeyUint8 = new Uint8Array(privateKeyArray)
+        return Keypair.fromSecretKey(privateKeyUint8)
+    } catch (error) {
+        throw new Error('Failed to parse SOLANA_PRIVATE_KEY. Make sure it is a valid JSON array')
+    }
 }
 
 /**
