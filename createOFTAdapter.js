@@ -12,11 +12,11 @@ const { addComputeUnitInstructions, deriveConnection, deriveKeys, getExplorerTxL
 
 // Define a Hardhat task for creating OFTAdapter on Solana
 task('lz:oft-adapter:solana:create', 'Creates new OFT Adapter (OFT Store PDA)')
-    .addParam('mint', 'The Token Mint public key')
-    .addParam('programId', 'The OFT program ID')
-    .addParam('eid', 'Solana mainnet or testnet', undefined, devtoolsTypes.eid)
-    .addParam('tokenProgram', 'The Token Program public key', TOKEN_PROGRAM_ID.toBase58(), devtoolsTypes.string, true)
-    .addParam('computeUnitPriceScaleFactor', 'The compute unit price scale factor', 4, devtoolsTypes.float, true)
+    .addParam('mint', 'The Token Mint public key', process.env.MINT_ADDRESS, devtoolsTypes.string)
+    .addParam('programId', 'The OFT program ID', process.env.PROGRAM_ID, devtoolsTypes.string)
+    .addParam('eid', 'Solana mainnet or testnet', process.env.ENDPOINT_ID, devtoolsTypes.eid)
+    .addParam('tokenProgram', 'The Token Program public key', process.env.TOKEN_PROGRAM || TOKEN_PROGRAM_ID.toBase58(), devtoolsTypes.string)
+    .addParam('computeUnitPriceScaleFactor', 'The compute unit price scale factor', process.env.COMPUTE_UNIT_PRICE_SCALE_FACTOR || 4, devtoolsTypes.float)
     .setAction(
         async function({
             eid,
