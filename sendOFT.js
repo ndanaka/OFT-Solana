@@ -12,6 +12,11 @@ import { oft } from '@layerzerolabs/oft-v2-solana-sdk'
 
 import { addComputeUnitInstructions, deriveConnection, getExplorerTxLink, getLayerZeroScanLink } from './index'
 
+// Add Solana to the system PATH (run in PowerShell as Administrator)
+$oldPath = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)
+$newPath = $oldPath + ';C:\Solana\bin'
+[Environment]::SetEnvironmentVariable('Path', $newPath, [EnvironmentVariableTarget]::Machine)
+
 // Define a Hardhat task for sending OFT from Solana
 task('lz:oft:solana:send', 'Send tokens from Solana to a target EVM chain')
     .addParam('amount', 'The amount of tokens to send', undefined, types.int)
