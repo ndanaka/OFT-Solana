@@ -8,13 +8,6 @@ import { task } from 'hardhat/config'
 
 import { types as devtoolsTypes } from '@layerzerolabs/devtools-evm-hardhat'
 
-interface Base58FeesTaskArgs {
-    /**
-     * The path to the keypair file to be used.
-     */
-    keypairFile: string
-}
-
 assert(process.env.HOME != undefined, 'process.env.HOME needs to be defined')
 
 const defaultKeypairFile = path.resolve(process.env.HOME, '.config/solana/id.json')
@@ -26,7 +19,8 @@ task('lz:solana:base-58', 'Outputs the base58 string for a keypair')
         defaultKeypairFile,
         devtoolsTypes.string
     )
-    .setAction(async ({ keypairFile }: Base58FeesTaskArgs) => {
+    .setAction(async (args) => {
+        const keypairFile = args.keypairFile
         assert(fs.existsSync(keypairFile), `Keypair file not found: ${keypairFile}`)
         const data = fs.readFileSync(keypairFile, 'utf8')
         const keypairJson = JSON.parse(data)
