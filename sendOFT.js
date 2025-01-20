@@ -12,18 +12,6 @@ import { oft } from '@layerzerolabs/oft-v2-solana-sdk'
 
 import { addComputeUnitInstructions, deriveConnection, getExplorerTxLink, getLayerZeroScanLink } from './index'
 
-interface Args {
-    amount: number
-    to: string
-    fromEid: EndpointId
-    toEid: EndpointId
-    programId: string
-    mint: string
-    escrow: string
-    tokenProgram: string
-    computeUnitPriceScaleFactor: number
-}
-
 // Define a Hardhat task for sending OFT from Solana
 task('lz:oft:solana:send', 'Send tokens from Solana to a target EVM chain')
     .addParam('amount', 'The amount of tokens to send', undefined, types.int)
@@ -36,17 +24,19 @@ task('lz:oft:solana:send', 'Send tokens from Solana to a target EVM chain')
     .addParam('tokenProgram', 'The Token Program public key', TOKEN_PROGRAM_ID.toBase58(), types.string, true)
     .addParam('computeUnitPriceScaleFactor', 'The compute unit price scale factor', 4, types.float, true)
     .setAction(
-        async ({
-            amount,
-            fromEid,
-            to,
-            toEid,
-            mint: mintStr,
-            programId: programIdStr,
-            escrow: escrowStr,
-            tokenProgram: tokenProgramStr,
-            computeUnitPriceScaleFactor,
-        }: Args) => {
+        async function(args) {
+            const { 
+                amount,
+                fromEid,
+                to,
+                toEid,
+                mint: mintStr,
+                programId: programIdStr,
+                escrow: escrowStr,
+                tokenProgram: tokenProgramStr,
+                computeUnitPriceScaleFactor
+            } = args
+
             const { connection, umi, umiWalletSigner } = await deriveConnection(fromEid)
 
             const oftProgramId = publicKey(programIdStr)
