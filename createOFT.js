@@ -31,82 +31,6 @@ import { addComputeUnitInstructions, deriveConnection, deriveKeys, getExplorerTx
 
 const DEFAULT_LOCAL_DECIMALS = 9
 
-interface CreateOFTTaskArgs {
-    /**
-     * The initial supply to mint on solana.
-     */
-    amount: number
-
-    /**
-     * The endpoint ID for the Solana network.
-     */
-    eid: EndpointId
-
-    /**
-     * The number of decimal places to use for the token.
-     */
-    localDecimals: number
-
-    /**
-     * OFT shared decimals.
-     */
-    sharedDecimals: number
-
-    /**
-     * The optional token mint ID, for Mint-And-Burn-Adapter only.
-     */
-    mint?: string
-
-    /**
-     * The name of the token.
-     */
-    name: string
-
-    /**
-     * The program ID for the OFT program.
-     */
-    programId: string
-
-    /**
-     * The seller fee basis points.
-     */
-    sellerFeeBasisPoints: number
-
-    /**
-     * The symbol of the token.
-     */
-    symbol: string
-
-    /**
-     * Whether the token metadata is mutable.
-     */
-    tokenMetadataIsMutable: boolean
-
-    /**
-     * The CSV list of additional minters.
-     */
-    additionalMinters?: string[]
-
-    /**
-     * The token program ID, for Mint-And-Burn-Adapter only.
-     */
-    tokenProgram: string
-
-    /**
-     * If you plan to have only the OFTStore and no additional minters.  This is not reversible, and will result in
-     * losing the ability to mint new tokens for everything but the OFTStore.  You should really be intentional about
-     * using this flag, as it is not reversible.
-     */
-    onlyOftStore: boolean
-
-    /**
-     * The URI for the token metadata.
-     */
-    uri: string
-
-    computeUnitPriceScaleFactor: number
-}
-
 // Define a Hardhat task for creating OFT on Solana
 // * Create the SPL Multisig account for mint authority
 // * Mint the new SPL Token
@@ -140,7 +64,7 @@ task('lz:oft:solana:create', 'Mints new SPL Token and creates new OFT Store acco
     .addParam('uri', 'URI for token metadata', '', devtoolsTypes.string)
     .addParam('computeUnitPriceScaleFactor', 'The compute unit price scale factor', 4, devtoolsTypes.float, true)
     .setAction(
-        async ({
+        async function({
             amount,
             eid,
             localDecimals: decimals,
@@ -156,7 +80,7 @@ task('lz:oft:solana:create', 'Mints new SPL Token and creates new OFT Store acco
             tokenProgram: tokenProgramStr,
             uri,
             computeUnitPriceScaleFactor,
-        }: CreateOFTTaskArgs) => {
+        }) {
             const isMABA = !!mintStr // the difference between MABA and OFT Adapter is that MABA uses mint/burn mechanism whereas OFT Adapter uses lock/unlock mechanism
             if (tokenProgramStr !== TOKEN_PROGRAM_ID.toBase58() && !isMABA) {
                 throw new Error('Non-Mint-And-Burn-Adapter does not support custom token programs')
@@ -186,7 +110,7 @@ task('lz:oft:solana:create', 'Mints new SPL Token and creates new OFT Store acco
 
             const additionalMinters = additionalMintersAsStrings?.map((minter) => new PublicKey(minter)) ?? []
 
-            let mintAuthorityPublicKey: PublicKey = toWeb3JsPublicKey(oftStorePda) // we default to the OFT Store as the Mint Authority when there are no additional minters
+            let mintAuthorityPublicKey = toWeb3JsPublicKey(oftStorePda) // we default to the OFT Store as the Mint Authority when there are no additional minters
 
             if (additionalMintersAsStrings) {
                 // we only need a multisig when we have additional minters
@@ -212,7 +136,7 @@ task('lz:oft:solana:create', 'Mints new SPL Token and creates new OFT Store acco
                 : createSignerFromKeypair(umi, eddsa.generateKeypair())
             const isTestnet = eid == EndpointId.SOLANA_V2_TESTNET
             if (!isMABA) {
-                const createV1Args: CreateV1InstructionAccounts & CreateV1InstructionArgs = {
+                const createV1Args = {
                     mint,
                     name,
                     symbol,
