@@ -1,4 +1,4 @@
-import { AccountMeta, publicKey, transactionBuilder } from '@metaplex-foundation/umi'
+import { publicKey, transactionBuilder } from '@metaplex-foundation/umi'
 import { fromWeb3JsPublicKey, toWeb3JsKeypair, toWeb3JsPublicKey } from '@metaplex-foundation/umi-web3js-adapters'
 import { AuthorityType, TOKEN_PROGRAM_ID, createSetAuthorityInstruction, getMint } from '@solana/spl-token'
 import { PublicKey } from '@solana/web3.js'
@@ -13,53 +13,13 @@ import { checkMultisigSigners, createMintAuthorityMultisig } from './multisig'
 
 import { addComputeUnitInstructions, deriveConnection, getExplorerTxLink } from './index'
 
-interface SetAuthorityTaskArgs {
-    /**
-     * The endpoint ID for the Solana network.
-     */
-    eid: EndpointId
-
-    /**
-     * The escrow public key.
-     */
-    escrow: string
-
-    /**
-     * The token mint ID, for Mint-And-Burn-Adapter only.
-     */
-    mint: string
-
-    /**
-     * The program ID for the OFT program.
-     */
-    programId: string
-
-    /**
-     * The CSV list of additional minters.
-     */
-    additionalMinters?: string[]
-
-    /**
-     * The token program ID, for Mint-And-Burn-Adapter only.
-     */
-    tokenProgram: string
-
-    /**
-     * If you plan to have only the OFTStore and no additional minters.  This is not reversible, and will result in
-     * losing the ability to mint new tokens for everything but the OFTStore.  You should really be intentional about
-     * using this flag, as it is not reversible.
-     */
-    onlyOftStore: boolean
-
-    computeUnitPriceScaleFactor: number
-}
-
 /**
  * Derive the OFT Store account for a given program and escrow.
- * @param programId {string}
- * @param escrow {string}
+ * @param {string} programId 
+ * @param {string} escrow
+ * @returns {PublicKey}
  */
-const getOftStore = (programId: string, escrow: string) => {
+const getOftStore = (programId, escrow) => {
     const oftDeriver = new OftPDA(publicKey(programId))
     const escrowPK = publicKey(escrow)
     const [oftStorePda] = oftDeriver.oftStore(escrowPK)
@@ -68,9 +28,10 @@ const getOftStore = (programId: string, escrow: string) => {
 
 /**
  * Get the string representation of the authority type.
- * @param authorityType {AuthorityType}
+ * @param {AuthorityType} authorityType
+ * @returns {string}
  */
-const getAuthorityTypeString = (authorityType: AuthorityType) => {
+const getAuthorityTypeString = (authorityType) => {
     switch (authorityType) {
         case AuthorityType.MintTokens:
             return 'MintTokens'
@@ -108,7 +69,7 @@ task('lz:oft:solana:setauthority', 'Create a new Mint Authority SPL multisig and
     )
     .addParam('computeUnitPriceScaleFactor', 'The compute unit price scale factor', 4, devtoolsTypes.float, true)
     .setAction(
-        async ({
+        async function({
             eid,
             escrow: escrowStr,
             mint: mintStr,
@@ -117,7 +78,7 @@ task('lz:oft:solana:setauthority', 'Create a new Mint Authority SPL multisig and
             additionalMinters: additionalMintersAsStrings,
             onlyOftStore,
             computeUnitPriceScaleFactor,
-        }: SetAuthorityTaskArgs) => {
+        }) {
             const { connection, umi, umiWalletKeyPair, umiWalletSigner } = await deriveConnection(eid)
             const oftStorePda = getOftStore(programIdStr, escrowStr)
             const tokenProgram = publicKey(tokenProgramStr)
@@ -180,7 +141,7 @@ task('lz:oft:solana:setauthority', 'Create a new Mint Authority SPL multisig and
                         pubkey: key.pubkey,
                         isSigner: key.isSigner,
                         isWritable: key.isWritable,
-                    })) as unknown as AccountMeta[],
+                    })),
                     data: ix.data,
                 }
                 let txBuilder = transactionBuilder().add({
