@@ -16,25 +16,22 @@ import { createOFTFactory } from '@layerzerolabs/ua-devtools-solana'
 
 import { createSolanaConnectionFactory } from '../common/utils'
 
-task(
-    'lz:oft:solana:outbound-rate-limit',
-    "Sets the Solana and EVM rate limits from './scripts/solana/utils/constants.ts'"
-)
-    .addParam('mint', 'The OFT token mint public key')
-    .addParam('programId', 'The OFT Program id')
-    .addParam('eid', 'Solana mainnet or testnet', undefined, types.eid)
-    .addParam('dstEid', 'The destination endpoint ID', undefined, types.eid)
-    .addParam('oftStore', 'The OFTStore account')
-    .addParam('capacity', 'The capacity of the rate limit', undefined, types.bigint)
-    .addParam('refillPerSecond', 'The refill rate of the rate limit', undefined, types.bigint)
-    .setAction(async function(taskArgs, hre) {
+task('lz:oft:solana:outbound-rate-limit', 'Set outbound rate limits')
+    .addParam('mint', 'The OFT token mint public key', process.env.MINT_ADDRESS, types.string)
+    .addParam('programId', 'The OFT Program id', process.env.PROGRAM_ID, types.string)
+    .addParam('eid', 'Endpoint ID', process.env.ENDPOINT_ID, types.eid)
+    .addParam('dstEid', 'The destination endpoint ID', process.env.TO_ENDPOINT_ID, types.eid)
+    .addParam('oftStore', 'The OFTStore account', process.env.OFT_STORE_ADDRESS, types.string)
+    .addParam('capacity', 'The capacity of the rate limit', process.env.RATE_LIMIT_CAPACITY, types.bigint)
+    .addParam('refillPerSecond', 'The refill rate of the rate limit', process.env.REFILL_RATE, types.bigint)
+    .setAction(async function(args) {
         const privateKey = process.env.SOLANA_PRIVATE_KEY
         assert(!!privateKey, 'SOLANA_PRIVATE_KEY is not defined in the environment variables.')
 
         const keypair = Keypair.fromSecretKey(bs58.decode(privateKey))
         const umiKeypair = fromWeb3JsKeypair(keypair)
         const connectionFactory = createSolanaConnectionFactory()
-        const connection = await connectionFactory(taskArgs.eid)
+        const connection = await connectionFactory(args.eid)
         const umi = createUmi(connection.rpcEndpoint).use(mplToolbox())
         const umiWalletSigner = createSignerFromKeypair(umi, umiKeypair)
         const web3WalletKeyPair = toWeb3JsKeypair(umiKeypair)
@@ -42,17 +39,17 @@ task(
 
         const solanaSdkFactory = createOFTFactory(
             () => toWeb3JsPublicKey(umiWalletSigner.publicKey),
-            () => new PublicKey(taskArgs.programId),
+            () => new PublicKey(args.programId),
             connectionFactory
         )
 
         const sdk = await solanaSdkFactory({
-            address: new PublicKey(taskArgs.oftStore).toBase58(),
-            eid: taskArgs.eid,
+            address: new PublicKey(args.oftStore).toBase58(),
+            eid: args.eid,
         })
         const solanaRateLimits = {
-            capacity: taskArgs.capacity,
-            refillPerSecond: taskArgs.refillPerSecond,
+            capacity: args.capacity,
+            refillPerSecond: args.refillPerSecond,
         }
         // for (const peer of graph.connections.filter((connection) => connection.vector.from.eid === solanaEid)) {
         try {
@@ -62,7 +59,7 @@ task(
             tx.sign(keypair)
             const txId = await sendAndConfirmTransaction(connection, tx, [keypair])
             console.log(`Transaction successful with ID: ${txId}`)
-            const [peer] = new OftPDA(publicKey(taskArgs.programId)).peer(publicKey(taskArgs.oftStore), taskArgs.dstEid)
+            const [peer] = new OftPDA(publicKey(args.programId)).peer(publicKey(args.oftStore), args.dstEid)
             const peerInfo = await accounts.fetchPeerConfig({ rpc: umi.rpc }, peer)
             console.dir({ peerInfo }, { depth: null })
         } catch (error) {
