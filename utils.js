@@ -5,10 +5,10 @@ import { backOff } from 'exponential-backoff'
  * Assert that the account is initialized on the Solana blockchain.  Due to eventual consistency, there is a race
  * between account creation and initialization.  This function will retry 10 times with backoff to ensure the account is
  * initialized.
- * @param connection {Connection}
- * @param publicKey {PublicKey}
+ * @param {Connection} connection
+ * @param {PublicKey} publicKey
  */
-export const assertAccountInitialized = async (connection: Connection, publicKey: PublicKey) => {
+export const assertAccountInitialized = async (connection, publicKey) => {
     return backOff(
         async () => {
             const accountInfo = await connection.getAccountInfo(publicKey)
