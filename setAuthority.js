@@ -50,24 +50,14 @@ const getAuthorityTypeString = (authorityType) => {
 // * Set Freeze Authority
 // Note:  Only supports SPL Token Standard.
 task('lz:oft:solana:setauthority', 'Create a new Mint Authority SPL multisig and set the mint/freeze authority')
-    .addParam('eid', 'Solana mainnet or testnet eid', undefined, devtoolsTypes.eid)
-    .addParam('mint', 'The Token Mint public key')
-    .addParam('programId', 'The OFT Program id')
-    .addParam('escrow', 'The OFT Escrow public key')
-    .addParam('additionalMinters', 'Comma-separated list of additional minters', undefined, devtoolsTypes.csv, true)
-    .addOptionalParam(
-        'onlyOftStore',
-        'If you plan to have only the OFTStore and no additional minters.  This is not reversible, and will result in losing the ability to mint new tokens by everything but the OFTStore.',
-        false,
-        devtoolsTypes.boolean
-    )
-    .addParam(
-        'tokenProgram',
-        'The Token Program public key (used for MABA only)',
-        TOKEN_PROGRAM_ID.toBase58(),
-        devtoolsTypes.string
-    )
-    .addParam('computeUnitPriceScaleFactor', 'The compute unit price scale factor', 4, devtoolsTypes.float, true)
+    .addParam('eid', 'Solana mainnet or testnet eid', process.env.ENDPOINT_ID, devtoolsTypes.eid)
+    .addParam('mint', 'The Token Mint public key', process.env.MINT_ADDRESS, devtoolsTypes.string)
+    .addParam('programId', 'The OFT Program id', process.env.PROGRAM_ID, devtoolsTypes.string)
+    .addParam('escrow', 'The OFT Escrow public key', process.env.ESCROW_ADDRESS, devtoolsTypes.string)
+    .addParam('additionalMinters', 'Comma-separated list of additional minters', process.env.ADDITIONAL_MINTERS, devtoolsTypes.csv)
+    .addOptionalParam('onlyOftStore', 'If you plan to have only the OFTStore', process.env.ONLY_OFT_STORE === 'true', devtoolsTypes.boolean)
+    .addParam('tokenProgram', 'The Token Program public key', process.env.TOKEN_PROGRAM || TOKEN_PROGRAM_ID.toBase58(), devtoolsTypes.string)
+    .addParam('computeUnitPriceScaleFactor', 'The compute unit price scale factor', process.env.COMPUTE_UNIT_PRICE_SCALE_FACTOR || 4, devtoolsTypes.float)
     .setAction(
         async function({
             eid,
