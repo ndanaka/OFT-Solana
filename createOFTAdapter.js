@@ -1,38 +1,14 @@
-import { createSignerFromKeypair, publicKey, transactionBuilder } from '@metaplex-foundation/umi'
-import { TOKEN_PROGRAM_ID, getMint } from '@solana/spl-token'
-import { PublicKey } from '@solana/web3.js'
-import bs58 from 'bs58'
-import { task } from 'hardhat/config'
+const { createSignerFromKeypair, publicKey, transactionBuilder } = require('@metaplex-foundation/umi')
+const { TOKEN_PROGRAM_ID, getMint } = require('@solana/spl-token')
+const { PublicKey } = require('@solana/web3.js')
+const bs58 = require('bs58')
+const { task } = require('hardhat/config')
 
-import { types as devtoolsTypes } from '@layerzerolabs/devtools-evm-hardhat'
-import { EndpointId } from '@layerzerolabs/lz-definitions'
-import { OFT_DECIMALS, oft, types } from '@layerzerolabs/oft-v2-solana-sdk'
+const { types: devtoolsTypes } = require('@layerzerolabs/devtools-evm-hardhat')
+const { EndpointId } = require('@layerzerolabs/lz-definitions')
+const { OFT_DECIMALS, oft, types } = require('@layerzerolabs/oft-v2-solana-sdk')
 
-import { addComputeUnitInstructions, deriveConnection, deriveKeys, getExplorerTxLink, output } from './index'
-
-interface CreateOFTAdapterTaskArgs {
-    /**
-     * The endpoint ID for the Solana network.
-     */
-    eid: EndpointId
-
-    /**
-     * The token mint public key.
-     */
-    mint: string
-
-    /**
-     * The OFT Program id.
-     */
-    programId: string
-
-    /**
-     * The Token Program public key.
-     */
-    tokenProgram: string
-
-    computeUnitPriceScaleFactor: number
-}
+const { addComputeUnitInstructions, deriveConnection, deriveKeys, getExplorerTxLink, output } = require('./index')
 
 // Define a Hardhat task for creating OFTAdapter on Solana
 task('lz:oft-adapter:solana:create', 'Creates new OFT Adapter (OFT Store PDA)')
@@ -42,13 +18,13 @@ task('lz:oft-adapter:solana:create', 'Creates new OFT Adapter (OFT Store PDA)')
     .addParam('tokenProgram', 'The Token Program public key', TOKEN_PROGRAM_ID.toBase58(), devtoolsTypes.string, true)
     .addParam('computeUnitPriceScaleFactor', 'The compute unit price scale factor', 4, devtoolsTypes.float, true)
     .setAction(
-        async ({
+        async function({
             eid,
             mint: mintStr,
             programId: programIdStr,
             tokenProgram: tokenProgramStr,
             computeUnitPriceScaleFactor,
-        }: CreateOFTAdapterTaskArgs) => {
+        }) {
             const { connection, umi, umiWalletKeyPair, umiWalletSigner } = await deriveConnection(eid)
             const { programId, lockBox, escrowPK, oftStorePda, eddsa } = deriveKeys(programIdStr)
 
