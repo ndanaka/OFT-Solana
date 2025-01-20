@@ -1,14 +1,12 @@
 import { createAccount, initializeMultisig } from '@metaplex-foundation/mpl-toolbox'
 import {
-    KeypairSigner,
-    Umi,
     createSignerFromKeypair,
     transactionBuilder,
     publicKey as umiPublicKey,
 } from '@metaplex-foundation/umi'
 import { toWeb3JsPublicKey } from '@metaplex-foundation/umi-web3js-adapters'
 import { MULTISIG_SIZE, TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from '@solana/spl-token'
-import { Connection, PublicKey } from '@solana/web3.js'
+import { PublicKey } from '@solana/web3.js'
 import bs58 from 'bs58'
 
 import { EndpointId } from '@layerzerolabs/lz-definitions'
@@ -18,16 +16,16 @@ import { assertAccountInitialized } from './utils'
 import { addComputeUnitInstructions, getExplorerTxLink } from '.'
 
 export async function createMultisig(
-    connection: Connection,
-    umi: Umi,
-    eid: EndpointId,
-    umiWalletSigner: KeypairSigner,
-    signers: PublicKey[],
-    m: number,
+    connection,
+    umi,
+    eid,
+    umiWalletSigner,
+    signers,
+    m,
     keypair = umi.eddsa.generateKeypair(),
     programId = TOKEN_PROGRAM_ID,
-    computeUnitPriceScaleFactor?: number
-): Promise<PublicKey> {
+    computeUnitPriceScaleFactor
+) {
     let txBuilder = transactionBuilder()
         .add(
             createAccount(umi, {
@@ -81,14 +79,14 @@ export async function createMultisig(
  * @param additionalSigners {PublicKey[]} the additionalSigners for the multisig account
  */
 export const createMintAuthorityMultisig = async (
-    connection: Connection,
-    umi: Umi,
-    eid: EndpointId,
-    umiWalletSigner: KeypairSigner,
-    oftStorePda: PublicKey,
-    tokenProgramId: PublicKey = TOKEN_PROGRAM_ID,
-    additionalSigners: PublicKey[],
-    computeUnitPriceScaleFactor: number
+    connection,
+    umi,
+    eid,
+    umiWalletSigner,
+    oftStorePda,
+    tokenProgramId = TOKEN_PROGRAM_ID,
+    additionalSigners,
+    computeUnitPriceScaleFactor
 ) => {
     return createMultisig(
         connection,
@@ -111,9 +109,9 @@ export const createMintAuthorityMultisig = async (
  * @param expectedSigners {PublicKey[]} the expected signers
  */
 export const checkMultisigSigners = async (
-    connection: Connection,
-    multisigAddress: PublicKey,
-    expectedSigners: PublicKey[]
+    connection,
+    multisigAddress,
+    expectedSigners
 ) => {
     const accountInfo = await assertAccountInitialized(connection, multisigAddress)
 
@@ -133,7 +131,7 @@ export const checkMultisigSigners = async (
     }
 
     // Initialize an array to hold the signers
-    const signers: PublicKey[] = []
+    const signers = []
 
     // Extract each signer public key based on the Multisig interface
     const signerOffset = 3 // Offset to the first signer in the data
