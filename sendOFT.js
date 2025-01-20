@@ -14,15 +14,15 @@ import { addComputeUnitInstructions, deriveConnection, getExplorerTxLink, getLay
 
 // Define a Hardhat task for sending OFT from Solana
 task('lz:oft:solana:send', 'Send tokens from Solana to a target EVM chain')
-    .addParam('amount', 'The amount of tokens to send', undefined, types.int)
-    .addParam('fromEid', 'The source endpoint ID', undefined, types.eid)
-    .addParam('to', 'The recipient address on the destination chain')
-    .addParam('toEid', 'The destination endpoint ID', undefined, types.eid)
-    .addParam('mint', 'The OFT token mint public key', undefined, types.string)
-    .addParam('programId', 'The OFT program ID', undefined, types.string)
-    .addParam('escrow', 'The OFT escrow public key', undefined, types.string)
-    .addParam('tokenProgram', 'The Token Program public key', TOKEN_PROGRAM_ID.toBase58(), types.string, true)
-    .addParam('computeUnitPriceScaleFactor', 'The compute unit price scale factor', 4, types.float, true)
+    .addParam('amount', 'The amount of tokens to send', process.env.SEND_AMOUNT, types.int)
+    .addParam('fromEid', 'The source endpoint ID', process.env.FROM_ENDPOINT_ID, types.eid)
+    .addParam('to', 'The recipient address on the destination chain', process.env.RECIPIENT_ADDRESS, types.string)
+    .addParam('toEid', 'The destination endpoint ID', process.env.TO_ENDPOINT_ID, types.eid)
+    .addParam('mint', 'The OFT token mint public key', process.env.MINT_ADDRESS, types.string)
+    .addParam('programId', 'The OFT program ID', process.env.PROGRAM_ID, types.string)
+    .addParam('escrow', 'The OFT escrow public key', process.env.ESCROW_ADDRESS, types.string)
+    .addParam('tokenProgram', 'The Token Program public key', process.env.TOKEN_PROGRAM || TOKEN_PROGRAM_ID.toBase58(), types.string)
+    .addParam('computeUnitPriceScaleFactor', 'The compute unit price scale factor', process.env.COMPUTE_UNIT_PRICE_SCALE_FACTOR || 4, types.float)
     .setAction(
         async function(args) {
             const { 
